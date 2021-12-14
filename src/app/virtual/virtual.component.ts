@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { LeapService } from '../leap.service';
 import * as $  from 'jquery';
-// import { element } from 'protractor';
 
 declare var $: any;
 
@@ -14,17 +13,15 @@ export class VirtualComponent implements OnInit {
 
   /*****************************/
 
-  @Input() elements2Check = ['btn1', 'btn2', 'btn3', 'btn4'];
-  @Input() waitingTime = 80;
-  @Input() size = 40;
+  @Input() elements2Check = ['btn1', 'btn2', 'btn3', 'btn4']; // elements you set to listen to click event. You can modify it to listen to html elemets as well (check ngOnInit)
+  @Input() size = 40; // cursor diameter in px
   @Input() color = 'black';
-  //@ViewChild('button') button: ElementRef;
-  @ViewChild('vcur') vcur: ElementRef;
-  gesture: string;
-  buttonRect: any;
-  vcurRect: any;
+
+  private canClick: boolean;
   public clickEvents:string[] = [];
-  private intervalBetweenClicks = 3000; //ms ==> recognize pinch every 3 seconds
+  private intervalBetweenClicks: number;
+  private clickX;
+  private clickY;
   /*****************************/
 
   public cursorStyle;
@@ -37,34 +34,28 @@ export class VirtualComponent implements OnInit {
   /*****************************/
 
   private cursorCounter = 0;
-  private onItemCounter = 0;
-  private itemSelected;
-
 
   /*****************************/
 
-  constructor(
-    public leap: LeapService,
-    private elementRef: ElementRef
-    ) {
-
-
+  constructor(public leap: LeapService) {
   }
 
   /*****************************/
-  private x;
-  private y;
+
   ngOnInit() {
+    this.initCursorLook();
+    this.canClick = true; // can click at start
+    this.intervalBetweenClicks = 2000; //ms ==> recognize pinch every 3 seconds
+    // add click events to elements you previously chose to "track"
     this.elements2Check.forEach(element=>{
       $('#' + element).click(
-        () => {this.addClickEvent("clicked button: " + element);}
+        () => { this.addClickEvent("clicked button: #" + element); }
       );
     })
-    
+
     setInterval(() => {
       this.cursorCounter++;
       if (this.cursorCounter == 5) {
-        this.resetCursor();
         this.cursorStyle.display = 'none';
       }
     }, 200);
@@ -72,27 +63,47 @@ export class VirtualComponent implements OnInit {
     this.leap.cursorRecognizer().subscribe((leapPos) => {
       this.cursorStyle.left = leapPos.xPos + 'px';
       this.cursorStyle.top = leapPos.yPos + 'px';
-      this.x = leapPos.xPos;
-      this.y = leapPos.yPos; 
+      this.clickX = leapPos.xPos;
+      this.clickY = leapPos.yPos;
       this.cursorStyle.display = 'block';
 
       this.cursorCounter = 0;
-      if(!this.clicked)
-        this.checkCursorHovering();
+
+      if(this.canClick)
+        this.checkPinch();
     });
 
-    this.updateCursorLook();
   }
 
-  addClickEvent(event:string)
-  {
-    console.log(event)
-    this.clickEvents.push(event);
-  }  
-  
   /*****************************/
 
-  private updateCursorLook() {
+  addClickEvent(event:string) // used only to push and display click events in html
+  {
+    this.clickEvents.push(event);
+  }
+
+  /*****************************/
+
+  private checkPinch() {
+    if(this.canClick && this.leap.gestureRecognized === "PINCH"){
+      this.pauseClicks();
+      this.leap.gestureRecognized =''
+      let event = new MouseEvent('click');
+      const el = document.elementFromPoint(this.clickX, this.clickY);
+      el.dispatchEvent(event);
+    }
+  }
+
+  private pauseClicks(){
+    this.canClick = false;
+    setTimeout(()=>{
+      this.canClick = true;
+    }, this.intervalBetweenClicks);
+  }
+
+  /*****************************/
+
+  private initCursorLook() {
     this.cursorSize = {
       width: this.size + 'px',
       height: this.size + 'px',
@@ -109,22 +120,20 @@ export class VirtualComponent implements OnInit {
   }
 
   /*****************************/
-  private clicked = false;
-  private checkCursorHovering() {
-    if(!this.clicked && this.leap.gestureRecognized === "PINCH"){
-      this.pauseClicks();
-      this.leap.gestureRecognized = '';
-      let event = new MouseEvent('click');
-      const el = document.elementFromPoint(this.x, this.y);
-      el.dispatchEvent(event);
-    }
 
-  }
+  /* START section: functions you may use if you try different implementation (not suggested) */
 
-  private pauseClicks(){
-    this.clicked = true;
-    setInterval(()=>{this.clicked = false}, this.intervalBetweenClicks)
-  }
+  /* Below functions can be used in case you want to implement different kind of click
+   * e.g., hover 3secs and then click
+   * If you try to do so..good luck :)
+  */
+
+
+  // remove comments in case you try using the following methods
+  // private onItemCounter = 0;
+  // private itemSelected;
+  // @Input() waitingTime = 80;
+
   /*****************************/
 
   // private updateCursor() {
@@ -139,12 +148,13 @@ export class VirtualComponent implements OnInit {
 
   /*****************************/
 
-  private resetCursor() {
-    this.onItemCounter = 0;
-    this.itemSelected = null;
-    this.loading.width = '0%';
-  }
+  // private resetCursor() {
+  //   this.onItemCounter = 0;
+  //   this.itemSelected = null;
+  //   this.loading.width = '0%';
+  // }
 
   /*****************************/
 
+  /* END section: functions you may use if you try different implementation (not suggested) */
 }

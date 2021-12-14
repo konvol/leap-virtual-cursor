@@ -89,8 +89,8 @@ export class LeapService {
       return null;
 
     // Currently using palm as cursor. Use pointables[0].tipPosition if you want to use your index finger as cursor
-    var normalizedPosition = frame.interactionBox.normalizePoint(frame.hands[0].palmPosition, true); 
-    
+    var normalizedPosition = frame.interactionBox.normalizePoint(frame.hands[0].palmPosition, true);
+
     if (normalizedPosition[2] < 0.2 || normalizedPosition[2] > 0.8)
       return null;
     this.findPinch(frame);
@@ -137,7 +137,7 @@ export class LeapService {
     if(frame.data.hands[0].pinchStrength === 1){ //depends on the accuracy you want. Max and more accurate is 1!
       this.gestureRecognized = this.GesturesStr[Gestures.PINCH];
     }
-    
+
   }
   /*****************************/
 
@@ -189,7 +189,7 @@ export class LeapService {
 
   private swipeHander(gesture): Gestures {
 
-    if (Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1])) {
+    if (Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1])) { // swipe gestures recognize hand direction
       if (gesture.direction[0] > 0)
         return Gestures.SWIPE_RIGHT;
       return Gestures.SWIPE_LEFT;
@@ -205,7 +205,7 @@ export class LeapService {
   private circleHander(frame, gesture): Gestures {
     if (!gesture || !gesture.pointableIds)
       return null;
-    var pointableID = gesture.pointableIds[0];
+    var pointableID = gesture.pointableIds[0]; // circle gestures recognize finger movement
     var direction = frame.pointable(pointableID).direction;
     var dotProduct = Leap.vec3.dot(direction, gesture.normal);
 
