@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { LeapService } from '../leap.service';
 import * as $  from 'jquery';
 
-declare var $: any;
+// declare var $: any;
 
 @Component({
   selector: 'app-virtual',
@@ -45,7 +45,7 @@ export class VirtualComponent implements OnInit {
   ngOnInit() {
     this.initCursorLook();
     this.canClick = true; // can click at start
-    this.intervalBetweenClicks = 2000; //ms ==> recognize pinch every 3 seconds
+    this.intervalBetweenClicks = 2000; //ms ==> recognize pinch every 2 seconds
     // add click events to elements you previously chose to "track"
     this.elements2Check.forEach(element=>{
       $('#' + element).click(

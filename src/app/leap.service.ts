@@ -174,10 +174,10 @@ export class LeapService {
   /*****************************/
 
   private getGesture(frame) {
-    if (!frame.valid || frame?.data?.gestures?.length == 0)
+    if (!frame.valid || frame.data.gestures.length == 0)
       return null;
 
-    var gestures = frame?.data?.gestures;
+    var gestures = frame.data.gestures;
 
     var gesture = gestures[0];
     if (!gesture)
