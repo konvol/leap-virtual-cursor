@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
-import { LeapService } from '../leap.service';
-import * as $  from 'jquery';
+import { LeapService } from './leap.service';
+import * as $ from 'jquery';
+import { SmartSpeakerService } from '../services/smart-speaker.service';
 
 // declare var $: any;
 
@@ -18,7 +19,7 @@ export class VirtualComponent implements OnInit {
   @Input() color = 'black';
 
   private canClick: boolean;
-  public clickEvents:string[] = [];
+  public clickEvents: string[] = [];
   private intervalBetweenClicks: number;
   private clickX;
   private clickY;
@@ -37,7 +38,9 @@ export class VirtualComponent implements OnInit {
 
   /*****************************/
 
-  constructor(public leap: LeapService) {
+  constructor(
+    public leap: LeapService,
+    private smartSpeakerService: SmartSpeakerService) {
   }
 
   /*****************************/
@@ -47,7 +50,7 @@ export class VirtualComponent implements OnInit {
     this.canClick = true; // can click at start
     this.intervalBetweenClicks = 2000; //ms ==> recognize pinch every 2 seconds
     // add click events to elements you previously chose to "track"
-    this.elements2Check.forEach(element=>{
+    this.elements2Check.forEach(element => {
       $('#' + element).click(
         () => { this.addClickEvent("clicked button: #" + element); }
       );
@@ -69,15 +72,15 @@ export class VirtualComponent implements OnInit {
 
       this.cursorCounter = 0;
 
-      if(this.canClick)
+      if (this.canClick)
         this.checkPinch();
     });
-
+    this.initArtyomDemo();
   }
 
   /*****************************/
 
-  addClickEvent(event:string) // used only to push and display click events in html
+  addClickEvent(event: string) // used only to push and display click events in html
   {
     this.clickEvents.push(event);
   }
@@ -85,18 +88,18 @@ export class VirtualComponent implements OnInit {
   /*****************************/
 
   private checkPinch() {
-    if(this.canClick && this.leap.gestureRecognized === "PINCH"){
+    if (this.canClick && this.leap.gestureRecognized === "PINCH") {
       this.pauseClicks();
-      this.leap.gestureRecognized =''
+      this.leap.gestureRecognized = ''
       let event = new MouseEvent('click');
       const el = document.elementFromPoint(this.clickX, this.clickY);
       el.dispatchEvent(event);
     }
   }
 
-  private pauseClicks(){
+  private pauseClicks() {
     this.canClick = false;
-    setTimeout(()=>{
+    setTimeout(() => {
       this.canClick = true;
     }, this.intervalBetweenClicks);
   }
@@ -157,4 +160,20 @@ export class VirtualComponent implements OnInit {
   /*****************************/
 
   /* END section: functions you may use if you try different implementation (not suggested) */
+
+  /* START section: Artyom demo */
+
+  private initArtyomDemo() {
+    this.smartSpeakerService.addCommand('hello', () => {
+      this.smartSpeakerService.speak('Hello to you too');
+    });
+    // this.smartSpeakerService.addCommand('how are you', () => {
+    //   this.smartSpeakerService.speak('I am fine, thank you');
+    // });
+    // this.smartSpeakerService.addCommand('what is your name', () => {
+    //   this.smartSpeakerService.speak('My name is Artyom');
+    // });
+
+    this.smartSpeakerService.speak('Hello there. I am Artyom, your virtual assistant. How can I help you?');
+  }
 }
