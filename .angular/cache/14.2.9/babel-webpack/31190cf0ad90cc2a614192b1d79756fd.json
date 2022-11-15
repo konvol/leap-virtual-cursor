@@ -1,0 +1,1 @@
+{"ast":null,"code":"var Cursor = module.exports = function () {\n  return function (frame) {\n    var pointable = frame.pointables.sort(function (a, b) {\n      return a.z - b.z;\n    })[0];\n\n    if (pointable && pointable.valid) {\n      frame.cursorPosition = pointable.tipPosition;\n    }\n\n    return frame;\n  };\n};","map":null,"metadata":{},"sourceType":"script"}

@@ -1,0 +1,1 @@
+{"ast":null,"code":"// This file is automatically updated from package.json by grunt.\nmodule.exports = {\n  full: '1.1.1',\n  major: 1,\n  minor: 1,\n  dot: 1\n};","map":null,"metadata":{},"sourceType":"script"}
